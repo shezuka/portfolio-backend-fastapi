@@ -8,5 +8,5 @@ class ModelSkill(ModelBase):
     __tablename__ = 'skills'
 
     category_id: int = Column(Integer, ForeignKey('skill_categories.id'))
-    category = relationship("ModelSkillCategory")
+    category = relationship("ModelSkillCategory", back_populates="skills")
     title: str = Column(String, unique=True)
