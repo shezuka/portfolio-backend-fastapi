@@ -4,3 +4,4 @@ from .model_skill_category import ModelSkillCategory
 from .model_skill import ModelSkill
 from .model_user import ModelUser
 from .model_message import ModelMessage
+from .model_project import ModelProject

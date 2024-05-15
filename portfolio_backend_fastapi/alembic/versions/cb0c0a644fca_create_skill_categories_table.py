@@ -21,6 +21,7 @@ def upgrade() -> None:
     op.create_table(
         'skill_categories',
         sa.Column('id', sa.Integer(), primary_key=True),
+        sa.Column('order', sa.Integer(), nullable=False),
         sa.Column('title', sa.String(50), nullable=False, unique=True),
         sa.Column('created_at', sa.DateTime(True), nullable=False, server_default=sa.func.CURRENT_TIMESTAMP()),
         sa.Column('updated_at', sa.DateTime(True), nullable=False, server_default=sa.func.CURRENT_TIMESTAMP(), server_onupdate=sa.func.CURRENT_TIMESTAMP()),
