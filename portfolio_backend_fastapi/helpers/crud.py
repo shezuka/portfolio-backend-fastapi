@@ -3,10 +3,12 @@ from typing import Type, Optional
 
 import sqlalchemy
 from fastapi import APIRouter, Depends, Response, Query
+from pydantic import Field
 from sqlalchemy.orm import Session
 
 from portfolio_backend_fastapi.dependencies.auth import assert_token
 from portfolio_backend_fastapi.dependencies.db import get_db
+from portfolio_backend_fastapi.helpers.captcha import assert_captcha
 from portfolio_backend_fastapi.models import ModelBase
 from portfolio_backend_fastapi.pydantic.requests.request_base import RequestBase
 from portfolio_backend_fastapi.pydantic.responses.response_base import ResponseBase
@@ -25,6 +27,9 @@ class CrudHelper:
     PUT_API = True
     POST_API = True
     DELETE_API = True
+
+    POST_CAPTCHA_PROTECTED: bool = False
+    POST_CAPTCHA_ACTION: str = None
 
     REQUIRE_AUTH = False
 
@@ -145,11 +150,20 @@ def declare_crud_api(
             return helper.get_build_response(item)
 
     if helper.POST_API:
+        CREATE_MODEL = helper.CREATE_MODEL
+        if helper.POST_CAPTCHA_PROTECTED:
+            class PostModelWithToken(CREATE_MODEL):
+                captcha_token: str = Field(...)
+
+            CREATE_MODEL = PostModelWithToken
+
         @router.post("", response_model=helper.RESPONSE_MODEL, dependencies=dependencies)
         async def create(
-                request: helper.CREATE_MODEL,
+                request: CREATE_MODEL,
                 db: Session = Depends(get_db)
         ):
+            if helper.POST_CAPTCHA_PROTECTED:
+                await assert_captcha(request.captcha_token, helper.POST_CAPTCHA_ACTION)
             helper.insert_on_before_execute_query(db, request)
             item = helper.insert_create_model(db, request)
             db.add(item)

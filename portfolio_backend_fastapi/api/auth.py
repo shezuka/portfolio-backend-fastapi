@@ -6,16 +6,18 @@ from sqlalchemy.orm import Session
 
 from portfolio_backend_fastapi.config import APP_SECRET
 from portfolio_backend_fastapi.dependencies.db import get_db
+from portfolio_backend_fastapi.helpers.captcha import assert_captcha
 from portfolio_backend_fastapi.lib.password import verify_password, hash_password
 from portfolio_backend_fastapi.models import ModelUser
 from portfolio_backend_fastapi.pydantic.requests.request_login import RequestLogin
-from portfolio_backend_fastapi.pydantic.responses.response_token import ResponseToken
 
 auth_router = APIRouter()
 
 
 @auth_router.post("/login")
 async def login(request_login: RequestLogin, db: Session = Depends(get_db)):
+    await assert_captcha(request_login.captcha_token, "login_admin")
+
     if db.query(ModelUser).count() == 0:
         user = ModelUser()
         user.username = request_login.username
