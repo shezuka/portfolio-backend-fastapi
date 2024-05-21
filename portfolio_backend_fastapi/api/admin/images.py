@@ -1,5 +1,8 @@
+import io
+import math
 from typing import Type
 
+from PIL import Image
 from fastapi import APIRouter, Depends, File, UploadFile, Body, Response
 from sqlalchemy.orm import Session
 
@@ -47,9 +50,22 @@ async def upload_image(
         file: UploadFile = File(...),
         db: Session = Depends(get_db)
 ):
+    MAX_IMAGE_SIZE = 320
+    image_data = await file.read()
+
+    image = Image.open(io.BytesIO(image_data))
+    optimized_image_io = io.BytesIO()
+    image = image.convert("RGB")
+    if image.width > MAX_IMAGE_SIZE or image.height > MAX_IMAGE_SIZE:
+        val = max(image.width, image.height)
+        scale = MAX_IMAGE_SIZE / val
+        image = image.resize((math.floor(image.width * scale), math.floor(image.height * scale)))
+    image.save(optimized_image_io, format="JPEG", quality=80)
+    optimized_image_io.seek(0)
+
     image = ModelImage()
-    image.mime_type = mime_type
-    image.data = await file.read()
+    image.mime_type = 'image/jpeg'
+    image.data = optimized_image_io.read()
     db.add(image)
     db.commit()
     db.refresh(image)
