@@ -8,3 +8,5 @@ class ResponseProject(ResponseBase):
     description: str
     image_id: int
     project_url: Optional[str]
+    frontend_github_url: Optional[str]
+    backend_github_url: Optional[str]

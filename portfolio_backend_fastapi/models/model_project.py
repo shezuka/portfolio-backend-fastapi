@@ -12,3 +12,5 @@ class ModelProject(ModelBase):
     image_id: int = Column(Integer, ForeignKey('images.id'), nullable=False)
     image = relationship('ModelImage')
     project_url: str = Column(String, nullable=True)
+    frontend_github_url: str = Column(String, nullable=True)
+    backend_github_url: str = Column(String, nullable=True)
