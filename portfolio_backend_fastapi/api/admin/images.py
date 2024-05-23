@@ -50,7 +50,7 @@ async def upload_image(
         file: UploadFile = File(...),
         db: Session = Depends(get_db)
 ):
-    MAX_IMAGE_SIZE = 320
+    MAX_IMAGE_SIZE = 800
     image_data = await file.read()
 
     image = Image.open(io.BytesIO(image_data))

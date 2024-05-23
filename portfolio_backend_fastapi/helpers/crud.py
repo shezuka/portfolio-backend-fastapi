@@ -47,7 +47,10 @@ class CrudHelper:
 
     @classmethod
     def insert_create_model(cls, db: Session, request: RequestBase):
-        return cls.DB_MODEL(**request.dict())
+        data = request.dict()
+        if cls.POST_CAPTCHA_PROTECTED:
+            del data['captcha_token']
+        return cls.DB_MODEL(**data)
 
     @classmethod
     def insert_on_before_execute_query(cls, db: Session, request: RequestBase):
