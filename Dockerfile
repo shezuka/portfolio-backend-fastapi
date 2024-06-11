@@ -6,6 +6,12 @@ COPY . .
 RUN pip install poetry
 RUN poetry install
 
+RUN chmod +x entrypoint.sh
+RUN chmod +x run_migrations.sh
+
+RUN mv entrypoint.sh /usr/local/bin/
+RUN mv run_migrations.sh /usr/local/bin/
+
 EXPOSE 8000
 
 CMD ["poetry", "run", "uvicorn", "portfolio_backend_fastapi.main:app", "--host=0.0.0.0", "--port=8000"]
